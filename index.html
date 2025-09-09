@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HELPHORA</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff6b6b, #feca57, #1dd1a1, #54a0ff);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  @keyframes gradientBG {
+    0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+  }
+  .login-container {
+    background: rgba(0,0,0,0.7);
+    padding: 40px 30px;
+    border-radius: 10px;
+    width: 320px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  .login-container h1 { color: #fff; margin-bottom:20px;}
+  .login-container form { display:flex; flex-direction:column;}
+  .login-container label {text-align:left; margin-top:10px; color:#ddd;}
+  .login-container input { padding:10px; border-radius:5px; border:none; margin-bottom:5px; }
+  .login-container button { margin-top:15px; padding:12px; border:none; border-radius:5px; cursor:pointer; background:#fff; color:#000; font-weight:700;}
+  .login-container button:hover { background:#ddd; }
+  .signup-link a { color:#fff; cursor:pointer; text-decoration:none; font-weight:600; }
+  #signUpForm { display:none; flex-direction:column; text-align:left; }
+  .hamburger { display:flex; justify-content:space-between; align-items:center; cursor:pointer; background:#333; padding:10px; border-radius:5px; margin-bottom:10px; }
+  .hamburger div { width:25px; height:3px; background:#fff; margin:4px 0; }
+  .menu { display:none; flex-direction:column; background:rgba(0,0,0,0.7); padding:10px; border-radius:5px; margin-bottom:10px; }
+  .menu button { background:#555; margin:5px 0; color:#fff; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:600;}
+  .menu button:hover { background:#777; }
+  #communityInterface { display:none; width:400px; padding:20px; background:rgba(0,0,0,0.7); border-radius:10px; color:#fff; max-height:90vh; overflow-y:auto;}
+  select,textarea,input[type=text],input[type=email],input[type=password],input[type=tel] { width:100%; padding:8px; margin-top:6px; border-radius:4px; border:none; }
+  textarea { resize:vertical; }
+  .needs-list { max-height:200px; overflow-y:auto; margin-top:10px; padding:10px; border-radius:5px; background:rgba(255,255,255,0.1); }
+  .need-item, .approve-item { border-bottom:1px solid #444; padding-bottom:6px; margin-bottom:8px; }
+  .approve-item { display:flex; justify-content:space-between; align-items:center; }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <h1>HELPHORA</h1>
+  <form id="loginForm">
+    <label>Email or Phone</label>
+    <input type="text" id="identifierInput" required>
+    <label>Password</label>
+    <input type="password" id="loginPassword" required>
+    <button type="submit">Log In</button>
+  </form>
+  <p class="signup-link">New here? <a id="showSignUpLink">Sign up</a></p>
+
+  <form id="signUpForm">
+    <label>Full Name</label>
+    <input type="text" id="fullName" required>
+    <label>Phone</label>
+    <input type="tel" id="signUpPhoneNumber" required>
+    <label>Email</label>
+    <input type="email" id="email" required>
+    <label>Password</label>
+    <input type="password" id="password" required>
+    <label>Confirm Password</label>
+    <input type="password" id="confirmPassword" required>
+    <button type="submit">Sign Up</button>
+    <p class="signup-link">Already have an account? <a id="showLoginLink">Log in</a></p>
+  </form>
+</div>
+
+<section id="communityInterface">
+  <div class="hamburger" id="hamburgerBtn"><span>☰ Menu</span></div>
+  <div class="menu" id="menuOptions">
+    <button onclick="showSection('need')">Submit Need</button>
+    <button onclick="showSection('browse')">Browse Needs</button>
+    <button onclick="showSection('transparency')">Transparency</button>
+    <button onclick="showSection('approve')">Approve Needs</button>
+    <button id="exportPdfBtn" style="display:none;">Export Needs (PDF)</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <h2>Welcome, <span id="welcomeName"></span></h2>
+
+  <div id="needFormSection" style="display:none;">
+    <h3>Submit a Need</h3>
+    <form id="needForm">
+      <label>Type</label>
+      <select id="needType" required>
+        <option value="">-- Select --</option>
+        <option value="Donation">Donation</option>
+        <option value="Volunteering">Volunteering</option>
+        <option value="Local Service">Local Service</option>
+      </select>
+      <label>Description</label>
+      <textarea id="needDescription" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="browseNeedsSection" style="display:none;">
+    <h3>Browse Needs</h3>
+    <select id="filterType">
+      <option value="">-- All --</option>
+      <option value="Donation">Donation</option>
+      <option value="Volunteering">Volunteering</option>
+      <option value="Local Service">Local Service</option>
+    </select>
+    <div class="needs-list" id="needsList"></div>
+  </div>
+
+  <div id="transparencySection" style="display:none;">
+    <h3>Transparency & Impact</h3>
+    <p>Total Needs Submitted: <span id="totalNeeds">0</span></p>
+    <p>Total Needs Fulfilled: <span id="fulfilledNeeds">0</span></p>
+  </div>
+
+  <div id="approveSection" style="display:none;">
+    <h3>Approve Needs</h3>
+    <div id="approveList" class="needs-list"></div>
+  </div>
+</section>
+
+<script>
+const API_BASE = "http://localhost:5000/api";
+let currentUser = null;
+
+// Forms
+const loginForm = document.getElementById("loginForm");
+const signUpForm = document.getElementById("signUpForm");
+const showSignUpLink = document.getElementById("showSignUpLink");
+const showLoginLink = document.getElementById("showLoginLink");
+const loginContainer = document.querySelector(".login-container");
+const communityInterface = document.getElementById("communityInterface");
+const welcomeName = document.getElementById("welcomeName");
+
+// Sections
+const needFormSection = document.getElementById("needFormSection");
+const browseNeedsSection = document.getElementById("browseNeedsSection");
+const transparencySection = document.getElementById("transparencySection");
+const approveSection = document.getElementById("approveSection");
+
+// Menus
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const menuOptions = document.getElementById("menuOptions");
+const logoutBtn = document.getElementById("logoutBtn");
+const exportPdfBtn = document.getElementById("exportPdfBtn");
+
+// Lists
+const needForm = document.getElementById("needForm");
+const needsList = document.getElementById("needsList");
+const approveList = document.getElementById("approveList");
+const filterType = document.getElementById("filterType");
+
+// Toggle hamburger
+hamburgerBtn.onclick = () => {
+  menuOptions.style.display = menuOptions.style.display==='flex'?'none':'flex';
+};
+
+// Toggle forms
+showSignUpLink.onclick = () => { loginForm.style.display='none'; signUpForm.style.display='flex'; }
+showLoginLink.onclick = () => { signUpForm.style.display='none'; loginForm.style.display='flex'; }
+
+// REGISTER
+signUpForm.onsubmit = async e => {
+  e.preventDefault();
+  const fullName = document.getElementById("fullName").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("signUpPhoneNumber").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  if(password !== confirmPassword){ alert("Passwords do not match"); return; }
+
+  const res = await fetch(`${API_BASE}/register`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({fullName,email,phone,password})
+  });
+  const data = await res.json();
+  alert(data.message);
+  if(res.ok) { showLoginLink.click(); signUpForm.reset(); }
+};
+
+// LOGIN
+loginForm.onsubmit = async e => {
+  e.preventDefault();
+  const identifier = document.getElementById("identifierInput").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const res = await fetch(`${API_BASE}/login`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({identifier,password})
+  });
+  const data = await res.json();
+  if(!res.ok){ alert(data.message); return; }
+
+  currentUser = data.user;
+  localStorage.setItem("token", data.token);
+  welcomeName.textContent = currentUser.isAdmin ? `Admin ${currentUser.fullName}` : currentUser.fullName;
+  loginContainer.style.display='none';
+  communityInterface.style.display='block';
+
+  if(currentUser.isAdmin){
+    document.querySelector("button[onclick*='need']").style.display='none';
+    needFormSection.style.display='none';
+    document.querySelector("button[onclick*='approve']").style.display='block';
+    exportPdfBtn.style.display='block';
+    showSection('browse');
+  } else {
+    document.querySelector("button[onclick*='approve']").style.display='none';
+    approveSection.style.display='none';
+    document.querySelector("button[onclick*='need']").style.display='block';
+    exportPdfBtn.style.display='none';
+    showSection('need');
+  }
+};
+
+// LOGOUT
+logoutBtn.onclick = () => {
+  currentUser = null;
+  localStorage.removeItem("token");
+  communityInterface.style.display='none';
+  loginContainer.style.display='block';
+};
+
+// Show sections
+function showSection(name){
+  if(currentUser?.isAdmin && name==='need'){
+    needFormSection.style.display='none';
+    return;
+  }
+
+  needFormSection.style.display=name==='need'?'block':'none';
+  browseNeedsSection.style.display=name==='browse'?'block':'none';
+  transparencySection.style.display=name==='transparency'?'block':'none';
+  approveSection.style.display=(name==='approve' && currentUser?.isAdmin)?'block':'none';
+
+  if(name==='browse') renderNeeds();
+  if(name==='transparency') loadTransparency();
+  if(name==='approve' && currentUser?.isAdmin) renderApproveList();
+}
+
+// SUBMIT NEED
+needForm.onsubmit = async e => {
+  e.preventDefault();
+  const type = document.getElementById("needType").value;
+  const description = document.getElementById("needDescription").value;
+  if(!type || !description){ alert("Fill all fields"); return; }
+
+  const res = await fetch(`${API_BASE}/needs`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem("token")},
+    body:JSON.stringify({type,description,submittedBy:currentUser.fullName})
+  });
+  const data = await res.json();
+  alert(data.message);
+  if(res.ok){ needForm.reset(); renderNeeds(); loadTransparency(); }
+};
+
+// RENDER NEEDS
+async function renderNeeds(){
+  const res = await fetch(`${API_BASE}/needs`, {headers:{'Authorization':'Bearer '+localStorage.getItem("token")}});
+  const data = await res.json();
+  needsList.innerHTML = "";
+  const filter = filterType.value;
+  data.filter(n=>!filter||n.type===filter).forEach(n=>{
+    const div = document.createElement("div");
+    div.className="need-item";
+    div.innerHTML = `<b>[${n.type}]</b> ${n.description}<br>
+      <small>By ${n.submittedBy} | ${new Date(n.createdAt).toLocaleString()} | Status: ${n.status}</small>`;
+    needsList.appendChild(div);
+  });
+}
+filterType.onchange = renderNeeds;
+
+// TRANSPARENCY
+async function loadTransparency(){
+  const res = await fetch(`${API_BASE}/needs`, {headers:{'Authorization':'Bearer '+localStorage.getItem("token")}});
+  const data = await res.json();
+  document.getElementById("totalNeeds").textContent = data.length;
+  document.getElementById("fulfilledNeeds").textContent = data.filter(n=>n.status==='approved').length;
+}
+
+// APPROVE LIST
+async function renderApproveList(){
+  const res = await fetch(`${API_BASE}/needs`, {headers:{'Authorization':'Bearer '+localStorage.getItem("token")}});
+  const data = await res.json();
+  approveList.innerHTML = "";
+  data.filter(n=>n.status==='pending').forEach(n=>{
+    const div = document.createElement("div");
+    div.className="approve-item";
+    div.innerHTML = `<span>[${n.type}] ${n.description}</span>`;
+    const btn = document.createElement("button");
+    btn.textContent="Approve";
+    btn.onclick=async()=>{
+      await fetch(`${API_BASE}/needs/${n.id}/approve`, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem("token")},
+        body:JSON.stringify({approved:true})
+      });
+      renderApproveList(); renderNeeds(); loadTransparency();
+    };
+    div.appendChild(btn);
+    approveList.appendChild(div);
+  });
+}
+
+// EXPORT PDF
+exportPdfBtn.onclick = () => {
+  const token = localStorage.getItem("token");
+  window.open(`${API_BASE}/needs/export/pdf?token=${token}`, "_blank");
+};
+</script>
+</body>
+</html>
