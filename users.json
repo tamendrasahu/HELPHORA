@@ -1,0 +1,34 @@
+[
+  {
+    "fullName": "ajay",
+    "email": "sa@gmail.com",
+    "phone": "+918225804243",
+    "password": "123"
+  },
+  {
+    "fullName": "pnk",
+    "email": "sah@gmail.com",
+    "phone": "+919301622942",
+    "password": "456"
+  },
+  {
+    "fullName": "pankaj",
+    "email": "abc@gmail.com",
+    "phone": "+917987673345",
+    "password": "123"
+  },
+  {
+    "fullName": "pankaj",
+    "email": "ab@gmail.com",
+    "phone": "+917987673344",
+    "password": "123"
+  },
+  {
+    "id": "ebc62a3f-cb92-47c8-8d33-be044fcd9772",
+    "fullName": "Admin",
+    "email": "admin@helphora.com",
+    "phone": "+1000000000",
+    "passwordHash": "$2b$10$xCOYdvvAnM3Tf4kV79HxC.nSRPf.jNgqRwiENv8Ds9pFF237O9kr6",
+    "isAdmin": true
+  }
+]
